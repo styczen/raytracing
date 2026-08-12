@@ -1,4 +1,4 @@
-use crate::{HitRecord, Hittable, Point3};
+use crate::{HitRecord, Hittable, Point3, Ray};
 
 pub struct Sphere {
     center: Point3,
@@ -6,7 +6,7 @@ pub struct Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, r: crate::Ray, ray_tmin: f64, ray_tmax: f64) -> Option<HitRecord> {
+    fn hit(&self, r: Ray, ray_tmin: f64, ray_tmax: f64) -> Option<HitRecord> {
         let oc = self.center - r.orig;
         let a = r.dir.length_squared();
         let h = r.dir.dot(oc);
@@ -19,7 +19,7 @@ impl Hittable for Sphere {
 
         let sqrtd = discriminant.sqrt();
 
-        // Find the nearest root tha lies in the range
+        // Find the nearest root that lies in the range
         let mut root = (h - sqrtd) / a;
         if root <= ray_tmin || root >= ray_tmax {
             root = (h + sqrtd) / a;
@@ -29,10 +29,7 @@ impl Hittable for Sphere {
         }
 
         let p = r.at(root);
-        Some(HitRecord {
-            t: root,
-            p,
-            normal: (p - self.center) / self.radius,
-        })
+        let outward_normal = (p - self.center) / self.radius;
+        Some(HitRecord::new(&r, root, p, outward_normal))
     }
 }
