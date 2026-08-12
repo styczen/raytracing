@@ -5,6 +5,12 @@ pub struct Sphere {
     radius: f64,
 }
 
+impl Sphere {
+    pub fn new(center: Point3, radius: f64) -> Self {
+        Self { center, radius }
+    }
+}
+
 impl Hittable for Sphere {
     fn hit(&self, r: Ray, ray_tmin: f64, ray_tmax: f64) -> Option<HitRecord> {
         let oc = self.center - r.orig;
