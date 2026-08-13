@@ -15,3 +15,9 @@ pub use sphere::Sphere;
 
 pub mod hittable_list;
 pub use hittable_list::HittableList;
+
+pub mod interval;
+pub use interval::Interval;
+
+pub mod camera;
+pub use camera::Camera;
