@@ -1,3 +1,4 @@
+use rand::prelude::*;
 use std::io::{BufWriter, Write};
 
 use crate::{Color, Hittable, Interval, Point3, Ray, Vec3, write_color};
@@ -10,10 +11,12 @@ pub struct Camera {
     pixel00_loc: Point3,
     pixel_delta_u: Vec3,
     pixel_delta_v: Vec3,
+    samples_per_pixel: usize,
+    pixel_samples_scale: f64,
 }
 
 impl Camera {
-    pub fn new(image_width: usize, aspect_ratio: f64) -> Self {
+    pub fn new(image_width: usize, aspect_ratio: f64, samples_per_pixel: usize) -> Self {
         // Image
         let image_height = ((image_width as f64 / aspect_ratio) as usize).max(1);
 
@@ -37,6 +40,8 @@ impl Camera {
             center - Vec3::new(0.0, 0.0, focal_legth) - viewport_u / 2.0 - viewport_v / 2.0;
         let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
+        let pixel_samples_scale = 1.0 / samples_per_pixel as f64;
+
         Self {
             // aspect_ratio,
             image_width,
@@ -45,6 +50,8 @@ impl Camera {
             pixel00_loc,
             pixel_delta_u,
             pixel_delta_v,
+            samples_per_pixel,
+            pixel_samples_scale,
         }
     }
 
@@ -59,19 +66,40 @@ impl Camera {
         for j in 0..self.image_height {
             eprint!("\rScanlines remaining: {} ", self.image_height - j);
             for i in 0..self.image_width {
-                let pixel_center = self.pixel00_loc
-                    + i as f64 * self.pixel_delta_u
-                    + j as f64 * self.pixel_delta_v;
-                let ray_direction = pixel_center - self.center;
-                let r = Ray::new(self.center, ray_direction);
-
-                let pixel_color = Camera::ray_color(r, world);
-                write_color(&mut out, pixel_color)?
+                let mut pixel_color = Color::default();
+                for _ in 0..self.samples_per_pixel {
+                    let r = self.get_ray(i, j);
+                    pixel_color += Camera::ray_color(r, world);
+                }
+                // let pixel_center = self.pixel00_loc
+                //     + i as f64 * self.pixel_delta_u
+                //     + j as f64 * self.pixel_delta_v;
+                // let ray_direction = pixel_center - self.center;
+                // let r = Ray::new(self.center, ray_direction);
+                //
+                // let pixel_color = Camera::ray_color(r, world);
+                write_color(&mut out, self.pixel_samples_scale * pixel_color)?
             }
         }
 
         out.flush()?;
         Ok(())
+    }
+
+    // Construct a camera ray originating from the origin and directed at randmly
+    // samples point aroung the pixel location.
+    fn get_ray(&self, i: usize, j: usize) -> Ray {
+        let offset = Vec3::new(
+            rand::random_range(0.0..=1.0) - 0.5,
+            rand::random_range(0.0..=1.0) - 0.5,
+            0.0,
+        );
+        let pixel_sample = self.pixel00_loc
+            + ((i as f64 + offset.x) * self.pixel_delta_u)
+            + ((j as f64 + offset.y) * self.pixel_delta_v);
+        let ray_origin = self.center;
+        let ray_direction = pixel_sample - ray_origin;
+        Ray::new(ray_origin, ray_direction)
     }
 
     fn ray_color(r: Ray, world: &impl Hittable) -> Color {
