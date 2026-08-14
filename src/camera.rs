@@ -71,13 +71,6 @@ impl Camera {
                     let r = self.get_ray(i, j);
                     pixel_color += Camera::ray_color(r, world);
                 }
-                // let pixel_center = self.pixel00_loc
-                //     + i as f64 * self.pixel_delta_u
-                //     + j as f64 * self.pixel_delta_v;
-                // let ray_direction = pixel_center - self.center;
-                // let r = Ray::new(self.center, ray_direction);
-                //
-                // let pixel_color = Camera::ray_color(r, world);
                 write_color(&mut out, self.pixel_samples_scale * pixel_color)?
             }
         }
@@ -90,8 +83,8 @@ impl Camera {
     // samples point aroung the pixel location.
     fn get_ray(&self, i: usize, j: usize) -> Ray {
         let offset = Vec3::new(
-            rand::random_range(0.0..=1.0) - 0.5,
-            rand::random_range(0.0..=1.0) - 0.5,
+            rand::random_range(0.0..1.0) - 0.5,
+            rand::random_range(0.0..1.0) - 0.5,
             0.0,
         );
         let pixel_sample = self.pixel00_loc
