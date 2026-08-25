@@ -1,23 +1,23 @@
-pub mod vec3;
+mod vec3;
 pub use vec3::{Point3, Vec3};
 
-pub mod color;
+mod color;
 pub use color::{Color, write_color};
 
-pub mod ray;
+mod ray;
 pub use ray::Ray;
 
-pub mod hittable;
+mod hittable;
 pub use hittable::{HitRecord, Hittable};
 
-pub mod sphere;
+mod sphere;
 pub use sphere::Sphere;
 
-pub mod hittable_list;
+mod hittable_list;
 pub use hittable_list::HittableList;
 
-pub mod interval;
+mod interval;
 pub use interval::Interval;
 
-pub mod camera;
-pub use camera::Camera;
+mod camera;
+pub use camera::{Camera, CameraConfig};
