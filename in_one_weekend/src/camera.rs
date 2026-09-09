@@ -122,8 +122,8 @@ impl Camera {
         if depth == 0 {
             Color::new(0.0, 0.0, 0.0)
         } else {
-            if let Some(hit_record) = world.hit(r, Interval::new(0.0, f64::INFINITY)) {
-                let direction = Vec3::random_on_hemisphere(rng, hit_record.normal);
+            if let Some(hit_record) = world.hit(r, Interval::new(0.001, f64::INFINITY)) {
+                let direction = hit_record.normal + Vec3::random_unit_vector(rng);
                 0.5 * Self::ray_color(Ray::new(hit_record.p, direction), depth - 1, world, rng)
             } else {
                 let unit_direction = r.dir.unit_vector();
