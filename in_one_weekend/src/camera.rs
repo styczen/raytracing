@@ -8,6 +8,7 @@ pub struct CameraConfig {
     pub image_width: usize,
     pub aspect_ratio: f64,
     pub samples_per_pixel: usize,
+    pub max_depth: usize,
 }
 
 impl Default for CameraConfig {
@@ -16,6 +17,7 @@ impl Default for CameraConfig {
             image_width: 400,
             aspect_ratio: 16.0 / 9.0,
             samples_per_pixel: 10,
+            max_depth: 10,
         }
     }
 }
@@ -29,6 +31,7 @@ pub struct Camera {
     pixel_delta_v: Vec3,
     samples_per_pixel: usize,
     pixel_samples_scale: f64,
+    max_depth: usize,
 }
 
 impl Camera {
@@ -37,6 +40,7 @@ impl Camera {
             image_width,
             aspect_ratio,
             samples_per_pixel,
+            max_depth,
         } = config;
 
         // Image
@@ -73,6 +77,7 @@ impl Camera {
             pixel_delta_v,
             samples_per_pixel,
             pixel_samples_scale,
+            max_depth,
         }
     }
 
@@ -90,7 +95,7 @@ impl Camera {
                 let mut pixel_color = Color::default();
                 for _ in 0..self.samples_per_pixel {
                     let r = self.get_ray(i, j, rng);
-                    pixel_color += Self::ray_color(r, world, rng);
+                    pixel_color += Self::ray_color(r, self.max_depth, world, rng);
                 }
                 write_color(&mut out, self.pixel_samples_scale * pixel_color)?;
             }
@@ -113,14 +118,18 @@ impl Camera {
         Ray::new(ray_origin, ray_direction)
     }
 
-    fn ray_color(r: Ray, world: &impl Hittable, rng: &mut impl Rng) -> Color {
-        if let Some(hit_record) = world.hit(r, Interval::new(0.0, f64::INFINITY)) {
-            let direction = Vec3::random_on_hemisphere(rng, hit_record.normal);
-            0.5 * Self::ray_color(Ray::new(hit_record.p, direction), world, rng)
+    fn ray_color(r: Ray, depth: usize, world: &impl Hittable, rng: &mut impl Rng) -> Color {
+        if depth == 0 {
+            Color::new(0.0, 0.0, 0.0)
         } else {
-            let unit_direction = r.dir.unit_vector();
-            let a = 0.5 * (unit_direction.y + 1.0);
-            (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
+            if let Some(hit_record) = world.hit(r, Interval::new(0.0, f64::INFINITY)) {
+                let direction = Vec3::random_on_hemisphere(rng, hit_record.normal);
+                0.5 * Self::ray_color(Ray::new(hit_record.p, direction), depth - 1, world, rng)
+            } else {
+                let unit_direction = r.dir.unit_vector();
+                let a = 0.5 * (unit_direction.y + 1.0);
+                (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
+            }
         }
     }
 
