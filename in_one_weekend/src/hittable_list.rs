@@ -23,7 +23,7 @@ impl Hittable for HittableList {
     fn hit(&self, r: Ray, ray_t: Interval) -> Option<HitRecord> {
         let mut closest = None;
         for obj in &self.objects {
-            let max = closest.map_or(ray_t.max, |hr: HitRecord| hr.t);
+            let max = closest.as_ref().map_or(ray_t.max, |hr: &HitRecord| hr.t);
             if let Some(hr) = obj.hit(r, Interval::new(ray_t.min, max)) {
                 closest = Some(hr);
             }

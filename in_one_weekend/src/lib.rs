@@ -21,3 +21,6 @@ pub use interval::Interval;
 
 mod camera;
 pub use camera::{Camera, CameraConfig};
+
+mod material;
+pub use material::{Material, Lambertian, Metal};

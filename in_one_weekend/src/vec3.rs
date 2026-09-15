@@ -23,11 +23,15 @@ impl Vec3 {
         self.x * self.x + self.y * self.y + self.z * self.z
     }
 
-    pub fn random(rng: &mut impl Rng) -> Self {
+    pub fn near_zero(self) -> bool {
+        self.x.abs() < f64::EPSILON && self.y.abs() < f64::EPSILON && self.z.abs() < f64::EPSILON
+    }
+
+    pub fn random(rng: &mut dyn Rng) -> Self {
         Self::new(rng.random(), rng.random(), rng.random())
     }
 
-    pub fn random_range(rng: &mut impl Rng, range: Range<f64>) -> Self {
+    pub fn random_range(rng: &mut dyn Rng, range: Range<f64>) -> Self {
         Self::new(
             rng.random_range(range.clone()),
             rng.random_range(range.clone()),
@@ -51,7 +55,7 @@ impl Vec3 {
         self / self.length()
     }
 
-    pub fn random_unit_vector(rng: &mut impl Rng) -> Self {
+    pub fn random_unit_vector(rng: &mut dyn Rng) -> Self {
         loop {
             let p = Self::random_range(rng, -1.0..1.0);
             let lensq = p.length_squared();
@@ -68,6 +72,10 @@ impl Vec3 {
         } else {
             -on_unit_sphere
         }
+    }
+
+    pub fn reflect(v: Vec3, n: Vec3) -> Self {
+        v - 2.0 * v.dot(n) * n
     }
 }
 

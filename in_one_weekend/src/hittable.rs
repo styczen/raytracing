@@ -1,15 +1,16 @@
-use crate::{Interval, Point3, Ray, Vec3};
+use crate::{Interval, Material, Point3, Ray, Vec3};
+use std::rc::Rc;
 
-#[derive(Debug, Clone, Copy)]
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
     pub t: f64,
     pub front_face: bool,
+    pub mat: Rc<dyn Material>,
 }
 
 impl HitRecord {
-    pub fn new(r: Ray, t: f64, p: Point3, outward_normal: Vec3) -> Self {
+    pub fn new(r: Ray, t: f64, p: Point3, outward_normal: Vec3, mat: Rc<dyn Material>) -> Self {
         let front_face = r.dir.dot(outward_normal) < 0.0;
         let normal = if front_face {
             outward_normal
@@ -21,6 +22,7 @@ impl HitRecord {
             normal,
             t,
             front_face,
+            mat,
         }
     }
 }
