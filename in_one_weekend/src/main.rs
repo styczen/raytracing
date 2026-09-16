@@ -15,9 +15,11 @@ fn main() -> std::io::Result<()> {
     };
     let material_left = Metal {
         albedo: Color::new(0.8, 0.8, 0.8),
+        fuzz: 0.3,
     };
     let material_right = Metal {
         albedo: Color::new(0.8, 0.6, 0.2),
+        fuzz: 1.0,
     };
 
     world.add(Sphere::new(
