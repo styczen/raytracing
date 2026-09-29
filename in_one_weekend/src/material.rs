@@ -13,6 +13,12 @@ pub struct Lambertian {
     pub albedo: Color,
 }
 
+impl Lambertian {
+    pub fn new(albedo: Color) -> Self {
+        Self { albedo }
+    }
+}
+
 impl Material for Lambertian {
     fn scatter(&self, _r_in: Ray, rec: &HitRecord, rng: &mut dyn Rng) -> Option<(Color, Ray)> {
         let mut scatter_direction = rec.normal + Vec3::random_unit_vector(rng);
@@ -29,6 +35,12 @@ impl Material for Lambertian {
 pub struct Metal {
     pub albedo: Color,
     pub fuzz: f64,
+}
+
+impl Metal {
+    pub fn new(albedo: Color, fuzz: f64) -> Self {
+        Self { albedo, fuzz }
+    }
 }
 
 impl Material for Metal {
@@ -52,6 +64,10 @@ pub struct Dielectric {
 }
 
 impl Dielectric {
+    pub fn new(refraction_index: f64) -> Self {
+        Self { refraction_index }
+    }
+
     fn reflectance(cosine: f64, refraction_index: f64) -> f64 {
         // Use Schlick's approximation for reflectance
         let r0 = ((1.0 - refraction_index) / (1.0 + refraction_index)).powi(2);
