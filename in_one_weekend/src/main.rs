@@ -1,6 +1,6 @@
 use rand::{SeedableRng, rngs::StdRng};
 use raytracing_in_one_weekend::{
-    Camera, CameraConfig, Color, HittableList, Lambertian, Metal, Point3, Sphere,
+    Camera, CameraConfig, Color, Dielectric, HittableList, Lambertian, Metal, Point3, Sphere,
 };
 use std::rc::Rc;
 
@@ -13,9 +13,11 @@ fn main() -> std::io::Result<()> {
     let material_center = Lambertian {
         albedo: Color::new(0.1, 0.2, 0.5),
     };
-    let material_left = Metal {
-        albedo: Color::new(0.8, 0.8, 0.8),
-        fuzz: 0.3,
+    let material_left = Dielectric {
+        refraction_index: 1.5,
+    };
+    let material_bubble = Dielectric {
+        refraction_index: 1.00 / 1.5,
     };
     let material_right = Metal {
         albedo: Color::new(0.8, 0.6, 0.2),
@@ -36,6 +38,11 @@ fn main() -> std::io::Result<()> {
         Point3::new(-1.0, 0.0, -1.0),
         0.5,
         Rc::new(material_left),
+    ));
+    world.add(Sphere::new(
+        Point3::new(-1.0, 0.0, -1.0),
+        0.4,
+        Rc::new(material_bubble),
     ));
     world.add(Sphere::new(
         Point3::new(1.0, 0.0, -1.0),

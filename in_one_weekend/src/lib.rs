@@ -23,4 +23,4 @@ mod camera;
 pub use camera::{Camera, CameraConfig};
 
 mod material;
-pub use material::{Material, Lambertian, Metal};
+pub use material::{Material, Lambertian, Metal, Dielectric};
