@@ -1,5 +1,5 @@
 use rand::{Rng, RngExt};
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Range, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Range, Sub, SubAssign};
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Vec3 {
@@ -53,6 +53,19 @@ impl Vec3 {
 
     pub fn unit_vector(self) -> Self {
         self / self.length()
+    }
+
+    pub fn random_in_unit_disk(rng: &mut dyn Rng) -> Self {
+        loop {
+            let p = Vec3::new(
+                rng.random_range(-1.0..1.0),
+                rng.random_range(-1.0..1.0),
+                0.0,
+            );
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
     }
 
     pub fn random_unit_vector(rng: &mut dyn Rng) -> Self {
@@ -199,5 +212,17 @@ impl Div<f64> for Vec3 {
     fn div(mut self, rhs: f64) -> Self::Output {
         self /= rhs;
         self
+    }
+}
+
+impl Index<usize> for Vec3 {
+    type Output = f64;
+    fn index(&self, i: usize) -> &f64 {
+        match i {
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
+            _ => panic!("Vec3 index out of range: {i}"),
+        }
     }
 }
