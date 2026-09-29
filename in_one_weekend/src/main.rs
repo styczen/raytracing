@@ -1,6 +1,6 @@
 use rand::{SeedableRng, rngs::StdRng};
 use raytracing_in_one_weekend::{
-    Camera, CameraConfig, Color, Dielectric, HittableList, Lambertian, Metal, Point3, Sphere,
+    Camera, CameraConfig, Color, Dielectric, HittableList, Lambertian, Metal, Point3, Sphere, Vec3,
 };
 use std::rc::Rc;
 
@@ -50,10 +50,35 @@ fn main() -> std::io::Result<()> {
         Rc::new(material_right),
     ));
 
+    // let r = std::f64::consts::FRAC_PI_4.cos();
+    //
+    // let material_left = Lambertian {
+    //     albedo: Color::new(0.0, 0.0, 1.0),
+    // };
+    // let material_right = Lambertian {
+    //     albedo: Color::new(1.0, 0.0, 0.0),
+    // };
+    //
+    // world.add(Sphere::new(
+    //     Point3::new(-r, 0.0, -1.0),
+    //     r,
+    //     Rc::new(material_left),
+    // ));
+    // world.add(Sphere::new(
+    //     Point3::new(r, 0.0, -1.0),
+    //     r,
+    //     Rc::new(material_right),
+    // ));
+
     let camera = Camera::new(CameraConfig {
+        aspect_ratio: 16.0 / 9.0,
+        image_width: 400,
         samples_per_pixel: 100,
         max_depth: 50,
-        ..Default::default()
+        vfov: 20.0,
+        lookfrom: Point3::new(-2.0, 2.0, 1.0),
+        lookat: Point3::new(0.0, 0.0, -1.0),
+        vup: Vec3::new(0.0, 1.0, 0.0),
     });
 
     let mut rng = StdRng::seed_from_u64(0);
